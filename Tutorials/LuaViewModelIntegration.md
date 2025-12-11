@@ -80,6 +80,11 @@ end
 
 -- Called when a property is set (optional)
 function OnSetProperty(viewModel, propertyName, value)
+    -- This function can return:
+    -- true: Property was handled by this function (UI will be notified)
+    -- false: Property change is rejected (no change will occur)
+    -- nil or non-boolean: Use default behavior (store in table)
+    
     -- You can add validation or side effects here
     if propertyName == "playerHealth" then
         -- Clamp health between 0 and max
@@ -93,10 +98,10 @@ function OnSetProperty(viewModel, propertyName, value)
             -- This would be done in Blueprint using LuaNotifyViewModelPropertyChanged
         end
         
-        return true -- Handled
+        return true -- Property was handled successfully
     end
     
-    return false -- Use default behavior (set in table)
+    return nil -- Use default behavior (set in table)
 end
 
 -- Business logic functions

@@ -47,6 +47,11 @@ end
 
 -- Called when a property is set (optional)
 function OnSetProperty(viewModel, propertyName, value)
+    -- This function can return:
+    -- true: Property was handled by this function (UI will be notified)
+    -- false: Property change is rejected (no change will occur)
+    -- nil or non-boolean: Use default behavior (store in table)
+    
     -- Validate health changes
     if propertyName == "playerHealth" then
         local clampedHealth = math.max(0, math.min(value, viewModel.playerMaxHealth))
@@ -57,14 +62,14 @@ function OnSetProperty(viewModel, propertyName, value)
             OnPlayerDeath(viewModel)
         end
         
-        return true -- Handled
+        return true -- Property was handled successfully
     end
     
     -- Validate mana changes
     if propertyName == "playerMana" then
         local clampedMana = math.max(0, math.min(value, viewModel.playerMaxMana))
         viewModel.playerMana = clampedMana
-        return true -- Handled
+        return true -- Property was handled successfully
     end
     
     -- Validate experience changes
@@ -76,10 +81,10 @@ function OnSetProperty(viewModel, propertyName, value)
             LevelUp(viewModel)
         end
         
-        return true -- Handled
+        return true -- Property was handled successfully
     end
     
-    return false -- Use default behavior
+    return nil -- Use default behavior (set in table)
 end
 
 -- Business logic functions

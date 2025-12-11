@@ -99,15 +99,21 @@ void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue 
 		FLuaValue Result;
 		if (CallLuaFunctionIfExists(OnSetPropertyLuaFunction, Args, Result))
 		{
-			// If the function returns true (as a bool), it handled the property
-			if (ULuaBlueprintFunctionLibrary::LuaValueIsBoolean(Result) && 
-			    ULuaBlueprintFunctionLibrary::Conv_LuaValueToBool(Result))
+			// The Lua function should return true if it handled the property,
+			// false if it rejected the change, or nil to use default behavior
+			if (ULuaBlueprintFunctionLibrary::LuaValueIsBoolean(Result))
 			{
-				bPropertyWasSet = true;
+				bool bHandled = ULuaBlueprintFunctionLibrary::Conv_LuaValueToBool(Result);
+				if (bHandled)
+				{
+					// Function handled the property successfully
+					bPropertyWasSet = true;
+				}
+				// else: Function explicitly rejected the change (returned false)
 			}
 			else
 			{
-				// Function returned false or non-bool, use default behavior
+				// Function returned nil or non-bool, use default behavior
 				ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
 				bPropertyWasSet = true;
 			}
