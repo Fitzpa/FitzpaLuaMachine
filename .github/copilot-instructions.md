@@ -100,28 +100,33 @@ LuaMachine is an Unreal Engine 5 plugin that adds Lua scripting capabilities to 
 ## Building
 
 ### Prerequisites
+
 - Unreal Engine 5 installed
 - C++ compiler for your platform (MSVC, Clang, or GCC)
 - Lua 5.3 static libraries (already included in Source/ThirdParty/)
 
 ### Build Process
+
 This is an Unreal Engine plugin - it builds automatically when:
 1. Placed in a project's `Plugins/` directory
 2. The project is opened or compiled
 3. The Unreal Editor regenerates project files
 
 ### Building Lua Libraries
+
 If you need to rebuild Lua static libraries for any platform, see `BuildingNotes.md` for detailed platform-specific instructions.
 
 ## Testing
 
 ### Functional Tests
+
 - Located in `Content/Tests/` as Blueprint assets
 - Run via Unreal Editor's Automation Tool (Session Frontend)
 - Enable plugin content visibility in Content Browser to access tests
 - Tests cover: file execution, global calls, table operations, component lifecycle
 
 ### Manual Testing
+
 1. Enable the LuaMachine plugin in your project
 2. Create a LuaState Blueprint
 3. Add Lua scripts to Content directory
@@ -131,6 +136,7 @@ If you need to rebuild Lua static libraries for any platform, see `BuildingNotes
 ## Platform Support
 
 ### Supported Platforms
+
 - **Windows:** 64-bit (x64)
 - **Mac:** Universal binary (x86_64 + ARM64)
 - **Linux:** x86_64 and AArch64
@@ -138,6 +144,7 @@ If you need to rebuild Lua static libraries for any platform, see `BuildingNotes
 - **iOS:** ARM64
 
 ### Platform-Specific Notes
+
 - **Android:** Minimum API level 24 required
 - **iOS:** `os_execute` disabled for security
 - **All platforms:** Bytecode is converted to 32-bit size_t at runtime for compatibility
