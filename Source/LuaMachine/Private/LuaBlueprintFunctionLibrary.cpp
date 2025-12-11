@@ -3,6 +3,8 @@
 #include "LuaBlueprintFunctionLibrary.h"
 #include "LuaComponent.h"
 #include "LuaMachine.h"
+#include "LuaViewModelBridge.h"
+#include "LuaCommonUIWidget.h"
 #include "Runtime/Online/HTTP/Public/Interfaces/IHttpResponse.h"
 #include "Runtime/Core/Public/Math/BigInt.h"
 #include "Runtime/Core/Public/Misc/Base64.h"
@@ -2035,9 +2037,6 @@ ULuaState* ULuaBlueprintFunctionLibrary::CreateDynamicLuaState(UObject* WorldCon
 }
 
 // Common UI and ViewModel Integration Functions
-
-#include "LuaViewModelBridge.h"
-#include "LuaCommonUIWidget.h"
 
 FLuaValue ULuaBlueprintFunctionLibrary::LuaCreateViewModelTable(ULuaViewModelBridge* ViewModelBridge)
 {

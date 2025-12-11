@@ -113,7 +113,7 @@ bool ULuaCommonUIWidget::CallLuaFunctionIfExists(const FString& FunctionName)
 
 FLuaValue ULuaCommonUIWidget::LuaCallFunction(const FString& Name, TArray<FLuaValue> Args)
 {
-	if (!WidgetLuaTable.Type || WidgetLuaTable.Type != ELuaValueType::Table)
+	if (WidgetLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -140,7 +140,7 @@ FLuaValue ULuaCommonUIWidget::LuaCallFunction(const FString& Name, TArray<FLuaVa
 
 FLuaValue ULuaCommonUIWidget::LuaGetField(const FString& Name)
 {
-	if (!WidgetLuaTable.Type || WidgetLuaTable.Type != ELuaValueType::Table)
+	if (WidgetLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -154,7 +154,7 @@ FLuaValue ULuaCommonUIWidget::LuaGetField(const FString& Name)
 
 void ULuaCommonUIWidget::LuaSetField(const FString& Name, FLuaValue Value)
 {
-	if (!WidgetLuaTable.Type || WidgetLuaTable.Type != ELuaValueType::Table)
+	if (WidgetLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{

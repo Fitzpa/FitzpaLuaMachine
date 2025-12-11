@@ -44,7 +44,7 @@ void ULuaViewModelBridge::InitializeLuaViewModel()
 
 FLuaValue ULuaViewModelBridge::LuaGetProperty(const FString& PropertyName)
 {
-	if (!ViewModelLuaTable.Type || ViewModelLuaTable.Type != ELuaValueType::Table)
+	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -63,7 +63,11 @@ FLuaValue ULuaViewModelBridge::LuaGetProperty(const FString& PropertyName)
 		FLuaValue Result;
 		if (CallLuaFunctionIfExists(OnGetPropertyLuaFunction, Args, Result))
 		{
-			return Result;
+			// If the result is not nil, use it; otherwise fall through to default behavior
+			if (!ULuaBlueprintFunctionLibrary::LuaValueIsNil(Result))
+			{
+				return Result;
+			}
 		}
 	}
 
@@ -73,7 +77,7 @@ FLuaValue ULuaViewModelBridge::LuaGetProperty(const FString& PropertyName)
 
 void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue Value)
 {
-	if (!ViewModelLuaTable.Type || ViewModelLuaTable.Type != ELuaValueType::Table)
+	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -131,7 +135,7 @@ void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue 
 
 FLuaValue ULuaViewModelBridge::LuaCallFunction(const FString& Name, TArray<FLuaValue> Args)
 {
-	if (!ViewModelLuaTable.Type || ViewModelLuaTable.Type != ELuaValueType::Table)
+	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -158,7 +162,7 @@ FLuaValue ULuaViewModelBridge::LuaCallFunction(const FString& Name, TArray<FLuaV
 
 FLuaValue ULuaViewModelBridge::LuaGetField(const FString& Name)
 {
-	if (!ViewModelLuaTable.Type || ViewModelLuaTable.Type != ELuaValueType::Table)
+	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
@@ -172,7 +176,7 @@ FLuaValue ULuaViewModelBridge::LuaGetField(const FString& Name)
 
 void ULuaViewModelBridge::LuaSetField(const FString& Name, FLuaValue Value)
 {
-	if (!ViewModelLuaTable.Type || ViewModelLuaTable.Type != ELuaValueType::Table)
+	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
 		{
