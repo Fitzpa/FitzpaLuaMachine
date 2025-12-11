@@ -74,6 +74,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Lua")
 	ULuaState* LuaWidgetGetState();
 
+	// Get the Widget's Lua table
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Lua")
+	FLuaValue GetWidgetLuaTable() const { return WidgetLuaTable; }
+
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;

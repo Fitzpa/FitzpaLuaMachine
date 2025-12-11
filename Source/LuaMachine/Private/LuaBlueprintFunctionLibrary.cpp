@@ -2054,7 +2054,7 @@ FLuaValue ULuaBlueprintFunctionLibrary::LuaCreateViewModelTable(ULuaViewModelBri
 	}
 
 	ViewModelBridge->InitializeLuaViewModel();
-	return ViewModelBridge->LuaGetField(TEXT("ViewModel"));
+	return ViewModelBridge->GetViewModelLuaTable();
 }
 
 void ULuaBlueprintFunctionLibrary::LuaSetViewModelProperty(ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName, FLuaValue Value)

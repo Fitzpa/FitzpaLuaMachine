@@ -82,6 +82,8 @@ void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue 
 		return;
 	}
 
+	bool bPropertyWasSet = false;
+
 	// Try to call the OnSetPropertyLuaFunction if it exists
 	if (!OnSetPropertyLuaFunction.IsEmpty())
 	{
@@ -91,16 +93,40 @@ void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue 
 		Args.Add(Value);
 		
 		FLuaValue Result;
-		CallLuaFunctionIfExists(OnSetPropertyLuaFunction, Args, Result);
+		if (CallLuaFunctionIfExists(OnSetPropertyLuaFunction, Args, Result))
+		{
+			// If the function returns true (as a bool), it handled the property
+			if (ULuaBlueprintFunctionLibrary::LuaValueIsBoolean(Result) && 
+			    ULuaBlueprintFunctionLibrary::Conv_LuaValueToBool(Result))
+			{
+				bPropertyWasSet = true;
+			}
+			else
+			{
+				// Function returned false or non-bool, use default behavior
+				ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
+				bPropertyWasSet = true;
+			}
+		}
+		else
+		{
+			// Function doesn't exist, use default behavior
+			ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
+			bPropertyWasSet = true;
+		}
 	}
 	else
 	{
 		// Default: set in table
 		ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
+		bPropertyWasSet = true;
 	}
 
-	// Broadcast property change
-	LuaBroadcastFieldValueChanged(FName(*PropertyName));
+	// Broadcast property change only if property was actually set
+	if (bPropertyWasSet)
+	{
+		LuaBroadcastFieldValueChanged(FName(*PropertyName));
+	}
 }
 
 FLuaValue ULuaViewModelBridge::LuaCallFunction(const FString& Name, TArray<FLuaValue> Args)

@@ -72,6 +72,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Lua")
 	void LuaBroadcastFieldValueChanged(const FName& FieldName);
 
+	// Get the ViewModel's Lua table
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Lua")
+	FLuaValue GetViewModelLuaTable() const { return ViewModelLuaTable; }
+
 protected:
 	// The Lua table value representing this ViewModel
 	FLuaValue ViewModelLuaTable;

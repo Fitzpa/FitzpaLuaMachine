@@ -28,10 +28,8 @@ void ULuaCommonUIWidget::NativeOnActivated()
 {
 	Super::NativeOnActivated();
 
-	if (CallLuaFunctionIfExists(OnActivatedLuaFunction))
-	{
-		OnLuaActivated.Broadcast();
-	}
+	CallLuaFunctionIfExists(OnActivatedLuaFunction);
+	OnLuaActivated.Broadcast();
 }
 
 void ULuaCommonUIWidget::NativeOnDeactivated()
