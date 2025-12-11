@@ -296,6 +296,32 @@ This is a UMG widget for showing/editing lua code with syntax colouring:
 The syntax highlighter is available in the FLuaMachineSyntaxHighlighterTextLayoutMarshaller class (so you can reuse it
 for building more advanced Slate/UMG widgets)
 
+## Common UI and ViewModel Integration
+
+LuaMachine now supports seamless integration with Unreal Engine's UMG Common UI and MVVM (Model-View-ViewModel) features, allowing Lua scripts to control and interact with UI components effectively.
+
+### LuaCommonUIWidget
+
+Create Common UI widgets that can be controlled entirely through Lua scripts:
+
+* Bind Lua functions to widget lifecycle events (activation, deactivation, construction, destruction)
+* Call Lua functions to update widget state and handle user interactions
+* Access and modify widget properties from Lua
+* Full support for Common UI's activation system
+
+Check the tutorial here: [Common UI with Lua](Tutorials/CommonUIWithLua.md)
+
+### LuaViewModelBridge
+
+Implement the MVVM pattern with Lua as your data layer:
+
+* Two-way data binding between Lua tables and UMG widgets
+* Automatic UI updates when Lua data changes
+* Property validation and computed properties in Lua
+* Clean separation of UI logic from presentation
+
+Check the tutorial here: [ViewModel Integration with Lua](Tutorials/LuaViewModelIntegration.md)
+
 ## Lua Threads/Coroutines
 
 Lua Threads/Coroutines are fully supported
@@ -347,6 +373,12 @@ Just enable the plugin content visualization from the content browser and from t
 https://github.com/rdeioris/LuaMachine/blob/master/Tutorials/SimpleDialogueSystem.md
 
 https://github.com/rdeioris/LuaMachine/blob/master/Tutorials/RickAndMortyAPI.md
+
+**New: UI Integration Tutorials**
+
+https://github.com/rdeioris/LuaMachine/blob/master/Tutorials/CommonUIWithLua.md
+
+https://github.com/rdeioris/LuaMachine/blob/master/Tutorials/LuaViewModelIntegration.md
 
 ## C++ Tips & Tricks
 

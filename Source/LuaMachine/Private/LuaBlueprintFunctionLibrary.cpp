@@ -2033,3 +2033,111 @@ ULuaState* ULuaBlueprintFunctionLibrary::CreateDynamicLuaState(UObject* WorldCon
 
 	return NewLuaState->GetLuaState(WorldContextObject->GetWorld());
 }
+
+// Common UI and ViewModel Integration Functions
+
+#include "LuaViewModelBridge.h"
+#include "LuaCommonUIWidget.h"
+
+FLuaValue ULuaBlueprintFunctionLibrary::LuaCreateViewModelTable(ULuaViewModelBridge* ViewModelBridge)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateViewModelTable: ViewModelBridge is null"));
+		return LuaCreateNil();
+	}
+
+	if (!ViewModelBridge->LuaState)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateViewModelTable: ViewModelBridge has no LuaState set"));
+		return LuaCreateNil();
+	}
+
+	ViewModelBridge->InitializeLuaViewModel();
+	return ViewModelBridge->LuaGetField(TEXT("ViewModel"));
+}
+
+void ULuaBlueprintFunctionLibrary::LuaSetViewModelProperty(ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName, FLuaValue Value)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaSetViewModelProperty: ViewModelBridge is null"));
+		return;
+	}
+
+	ViewModelBridge->LuaSetProperty(PropertyName, Value);
+}
+
+FLuaValue ULuaBlueprintFunctionLibrary::LuaGetViewModelProperty(ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaGetViewModelProperty: ViewModelBridge is null"));
+		return LuaCreateNil();
+	}
+
+	return ViewModelBridge->LuaGetProperty(PropertyName);
+}
+
+void ULuaBlueprintFunctionLibrary::LuaNotifyViewModelPropertyChanged(ULuaViewModelBridge* ViewModelBridge, const FName& PropertyName)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaNotifyViewModelPropertyChanged: ViewModelBridge is null"));
+		return;
+	}
+
+	ViewModelBridge->LuaBroadcastFieldValueChanged(PropertyName);
+}
+
+ULuaCommonUIWidget* ULuaBlueprintFunctionLibrary::LuaCreateCommonUIWidget(UObject* WorldContextObject, TSubclassOf<ULuaCommonUIWidget> WidgetClass, TSubclassOf<ULuaState> LuaState)
+{
+	if (!WidgetClass)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: WidgetClass is null"));
+		return nullptr;
+	}
+
+	if (!WorldContextObject)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: WorldContextObject is null"));
+		return nullptr;
+	}
+
+	UWorld* World = WorldContextObject->GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: Unable to get World from WorldContextObject"));
+		return nullptr;
+	}
+
+	ULuaCommonUIWidget* Widget = CreateWidget<ULuaCommonUIWidget>(World, WidgetClass);
+	if (Widget && LuaState)
+	{
+		Widget->LuaState = LuaState;
+	}
+
+	return Widget;
+}
+
+void ULuaBlueprintFunctionLibrary::LuaActivateCommonUIWidget(ULuaCommonUIWidget* Widget)
+{
+	if (!Widget)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaActivateCommonUIWidget: Widget is null"));
+		return;
+	}
+
+	Widget->ActivateWidget();
+}
+
+void ULuaBlueprintFunctionLibrary::LuaDeactivateCommonUIWidget(ULuaCommonUIWidget* Widget)
+{
+	if (!Widget)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaDeactivateCommonUIWidget: Widget is null"));
+		return;
+	}
+
+	Widget->DeactivateWidget();
+}

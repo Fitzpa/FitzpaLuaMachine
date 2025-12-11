@@ -430,6 +430,36 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category = "Lua")
 	static ULuaState* CreateDynamicLuaState(UObject* WorldContextObject, TSubclassOf<ULuaState> LuaStateClass);
 
+	// Common UI and ViewModel Integration Functions
+
+	/** Create a Lua table from a ViewModel bridge */
+	UFUNCTION(BlueprintCallable, Category = "Lua|ViewModel")
+	static FLuaValue LuaCreateViewModelTable(class ULuaViewModelBridge* ViewModelBridge);
+
+	/** Set a ViewModel property from Lua */
+	UFUNCTION(BlueprintCallable, Category = "Lua|ViewModel")
+	static void LuaSetViewModelProperty(class ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName, FLuaValue Value);
+
+	/** Get a ViewModel property as Lua value */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Lua|ViewModel")
+	static FLuaValue LuaGetViewModelProperty(class ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName);
+
+	/** Notify ViewModel that a property has changed (triggers UI update) */
+	UFUNCTION(BlueprintCallable, Category = "Lua|ViewModel")
+	static void LuaNotifyViewModelPropertyChanged(class ULuaViewModelBridge* ViewModelBridge, const FName& PropertyName);
+
+	/** Create a Common UI widget with Lua support */
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category = "Lua|CommonUI")
+	static class ULuaCommonUIWidget* LuaCreateCommonUIWidget(UObject* WorldContextObject, TSubclassOf<class ULuaCommonUIWidget> WidgetClass, TSubclassOf<ULuaState> LuaState);
+
+	/** Activate a Common UI widget from Lua */
+	UFUNCTION(BlueprintCallable, Category = "Lua|CommonUI")
+	static void LuaActivateCommonUIWidget(class ULuaCommonUIWidget* Widget);
+
+	/** Deactivate a Common UI widget from Lua */
+	UFUNCTION(BlueprintCallable, Category = "Lua|CommonUI")
+	static void LuaDeactivateCommonUIWidget(class ULuaCommonUIWidget* Widget);
+
 private:
 	static void HttpRequestDone(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, TSubclassOf<ULuaState> LuaState, TWeakObjectPtr<UWorld> World, const FString SecurityHeader, const FString SignaturePublicExponent, const FString SignatureModulus, FLuaHttpSuccess Completed);
 	static void HttpGenericRequestDone(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful, TWeakPtr<FLuaSmartReference> Context, FLuaHttpResponseReceived ResponseReceived, FLuaHttpError Error);

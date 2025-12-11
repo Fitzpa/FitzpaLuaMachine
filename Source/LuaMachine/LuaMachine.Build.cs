@@ -44,6 +44,8 @@ public class LuaMachine : ModuleRules
                 "SlateCore",
                 "UMG",
                 "InputCore",
+                "CommonUI",
+                "ModelViewViewModel",
 				// ... add private dependencies that you statically link with here ...	
 			}
             );
