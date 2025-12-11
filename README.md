@@ -300,6 +300,8 @@ for building more advanced Slate/UMG widgets)
 
 LuaMachine now supports seamless integration with Unreal Engine's UMG Common UI and MVVM (Model-View-ViewModel) features, allowing Lua scripts to control and interact with UI components effectively.
 
+**Quick Start:** [Get started in 5 minutes](Docs/CommonUI_ViewModel_QuickStart.md)
+
 ### LuaCommonUIWidget
 
 Create Common UI widgets that can be controlled entirely through Lua scripts:
