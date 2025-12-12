@@ -92,11 +92,11 @@ public:
 
 	// Optional Lua function to call when a property is requested
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lua")
-	FString OnGetPropertyLuaFunction;
+	FName OnGetPropertyLuaFunction;
 
 	// Optional Lua function to call when a property is set
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lua")
-	FString OnSetPropertyLuaFunction;
+	FName OnSetPropertyLuaFunction;
 
 	// Enable logging of Lua errors
 	UPROPERTY(EditAnywhere, Category = "Lua")
@@ -113,6 +113,9 @@ public:
 	// Set a property value in Lua
 	UFUNCTION(BlueprintCallable, Category = "Lua")
 	void LuaSetProperty(const FString& PropertyName, FLuaValue Value);
+
+	// Set a property value in Lua using a pre-computed FName for performance
+	void LuaSetProperty(const FName& PropertyName, FLuaValue Value);
 
 	// Call a Lua function from the ViewModel's table
 	UFUNCTION(BlueprintCallable, Category = "Lua", meta = (AutoCreateRefTerm = "Args"))

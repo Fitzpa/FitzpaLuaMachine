@@ -117,9 +117,9 @@ void ULuaCommonUIWidget::InitializeLuaTable()
  * @param FunctionName Name of the global Lua function to call.
  * @return true if a callable global function was found and invoked, false otherwise.
  */
-bool ULuaCommonUIWidget::CallLuaFunctionIfExists(const FString& FunctionName)
+bool ULuaCommonUIWidget::CallLuaFunctionIfExists(const FName& FunctionName)
 {
-	if (FunctionName.IsEmpty())
+	if (FunctionName.IsNone())
 	{
 		return false;
 	}
@@ -133,8 +133,10 @@ bool ULuaCommonUIWidget::CallLuaFunctionIfExists(const FString& FunctionName)
 		return false;
 	}
 
+	FString FunctionNameString = FunctionName.ToString();
+
 	// Try to get the function from the global table
-	FLuaValue FunctionValue = ULuaBlueprintFunctionLibrary::LuaGetGlobal(this, LuaState, FunctionName);
+	FLuaValue FunctionValue = ULuaBlueprintFunctionLibrary::LuaGetGlobal(this, LuaState, FunctionNameString);
 	
 	if (ULuaBlueprintFunctionLibrary::LuaValueIsFunction(FunctionValue))
 	{
@@ -148,7 +150,7 @@ bool ULuaCommonUIWidget::CallLuaFunctionIfExists(const FString& FunctionName)
 	}
 	else if (bLogError)
 	{
-		UE_LOG(LogLuaMachine, Warning, TEXT("LuaCommonUIWidget: Lua function '%s' not found or not callable"), *FunctionName);
+		UE_LOG(LogLuaMachine, Verbose, TEXT("LuaCommonUIWidget: Lua function '%s' not found or not callable"), *FunctionNameString);
 	}
 
 	return false;

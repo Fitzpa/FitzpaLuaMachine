@@ -88,7 +88,15 @@ end
 -- @param newTitle The new title string to assign.
 -- @return The updated title string.
 function UpdateTitle(widget, newTitle)
-    widget.widgetTitle = newTitle
-    print("Title updated to: " .. newTitle)
-    return newTitle
+    if type(newTitle) ~= "string" or not newTitle:match("%S") then
+        print("Warning: Invalid title provided. Title must be a non-empty string.")
+        return nil
+    end
+
+    -- Trim whitespace from the new title
+    local trimmedTitle = newTitle:match("^%s*(.-)%s*$")
+
+    widget.widgetTitle = trimmedTitle
+    print("Title updated to: " .. trimmedTitle)
+    return trimmedTitle
 end

@@ -74,14 +74,14 @@ FLuaValue ULuaViewModelBridge::LuaGetProperty(const FString& PropertyName)
 	}
 
 	// Try to call the OnGetPropertyLuaFunction if it exists
-	if (!OnGetPropertyLuaFunction.IsEmpty())
+	if (!OnGetPropertyLuaFunction.IsNone())
 	{
 		TArray<FLuaValue> Args;
 		Args.Add(ViewModelLuaTable);
 		Args.Add(ULuaBlueprintFunctionLibrary::LuaCreateString(PropertyName));
 		
 		FLuaValue Result;
-		if (CallLuaFunctionIfExists(OnGetPropertyLuaFunction, Args, Result))
+		if (CallLuaFunctionIfExists(OnGetPropertyLuaFunction.ToString(), Args, Result))
 		{
 			// If the result is not nil, use it; otherwise fall through to default behavior
 			if (!ULuaBlueprintFunctionLibrary::LuaValueIsNil(Result))
@@ -105,6 +105,11 @@ FLuaValue ULuaViewModelBridge::LuaGetProperty(const FString& PropertyName)
  */
 void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue Value)
 {
+	LuaSetProperty(FName(*PropertyName), Value);
+}
+
+void ULuaViewModelBridge::LuaSetProperty(const FName& PropertyName, FLuaValue Value)
+{
 	if (ViewModelLuaTable.Type != ELuaValueType::Table)
 	{
 		if (bLogError)
@@ -115,55 +120,48 @@ void ULuaViewModelBridge::LuaSetProperty(const FString& PropertyName, FLuaValue 
 	}
 
 	bool bPropertyWasSet = false;
+	bool bHandledByLua = false;
 
-	// Try to call the OnSetPropertyLuaFunction if it exists
-	if (!OnSetPropertyLuaFunction.IsEmpty())
+	if (!OnSetPropertyLuaFunction.IsNone())
 	{
+		FString PropertyNameString = PropertyName.ToString();
 		TArray<FLuaValue> Args;
 		Args.Add(ViewModelLuaTable);
-		Args.Add(ULuaBlueprintFunctionLibrary::LuaCreateString(PropertyName));
+		Args.Add(ULuaBlueprintFunctionLibrary::LuaCreateString(PropertyNameString));
 		Args.Add(Value);
-		
+
 		FLuaValue Result;
-		if (CallLuaFunctionIfExists(OnSetPropertyLuaFunction, Args, Result))
+		if (CallLuaFunctionIfExists(OnSetPropertyLuaFunction.ToString(), Args, Result))
 		{
-			// The Lua function should return true if it handled the property,
-			// false if it rejected the change, or nil to use default behavior
+			bHandledByLua = true;
 			if (ULuaBlueprintFunctionLibrary::LuaValueIsBoolean(Result))
 			{
-				bool bHandled = ULuaBlueprintFunctionLibrary::Conv_LuaValueToBool(Result);
-				if (bHandled)
+				if (ULuaBlueprintFunctionLibrary::Conv_LuaValueToBool(Result))
 				{
-					// Function handled the property successfully
+					// Lua function returned true, property was set.
 					bPropertyWasSet = true;
 				}
-				// else: Function explicitly rejected the change (returned false)
+				// else: Lua function returned false, property change rejected. Do nothing.
 			}
 			else
 			{
-				// Function returned nil or non-bool, use default behavior
-				ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
-				bPropertyWasSet = true;
+				// Lua function returned nil or non-bool, fall through to default behavior.
+				bHandledByLua = false;
 			}
 		}
-		else
-		{
-			// Function doesn't exist, use default behavior
-			ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
-			bPropertyWasSet = true;
-		}
 	}
-	else
+
+	if (!bHandledByLua)
 	{
-		// Default: set in table
-		ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName, Value);
+		// Default behavior: no function, function was not found, or it returned a non-boolean.
+		ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, PropertyName.ToString(), Value);
 		bPropertyWasSet = true;
 	}
 
 	// Broadcast property change only if property was actually set
 	if (bPropertyWasSet)
 	{
-		LuaBroadcastFieldValueChanged(FName(*PropertyName));
+		LuaBroadcastFieldValueChanged(PropertyName);
 	}
 }
 
@@ -245,6 +243,12 @@ void ULuaViewModelBridge::LuaSetField(const FString& Name, FLuaValue Value)
 	}
 
 	ULuaBlueprintFunctionLibrary::LuaTableSetField(ViewModelLuaTable, Name, Value);
+
+	// IMPORTANT: LuaSetField directly modifies the internal Lua table without broadcasting
+	// MVVM change notifications. This is intentional for direct table manipulation.
+	// If property changes need to update bound UI elements or other MVVM consumers,
+	// use LuaSetProperty (which broadcasts notifications) or explicitly call
+	// LuaBroadcastFieldValueChanged afterwards.
 }
 
 /**
