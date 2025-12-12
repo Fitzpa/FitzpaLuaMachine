@@ -13,7 +13,69 @@
  * Allows Lua scripts to bind to and modify ViewModel properties
  */
 UCLASS(Blueprintable, BlueprintType)
-class LUAMACHINE_API ULuaViewModelBridge : public UMVVMViewModelBase
+class /**
+ * Bridge between UMG MVVM ViewModels and Lua scripting, exposing a Lua-backed table,
+ * optional Lua hooks for property get/set, and utilities for calling Lua functions.
+ */
+
+/**
+ * Initialize the Lua table backing this ViewModel and prepare any required Lua state.
+ */
+ 
+/**
+ * Retrieve a value for a ViewModel property from the Lua table or via an optional Lua getter.
+ * @param PropertyName Name of the property to retrieve.
+ * @returns The value of the requested property as an FLuaValue, or an empty/default FLuaValue if not present.
+ */
+
+/**
+ * Set a ViewModel property value in the Lua table and invoke an optional Lua setter.
+ * @param PropertyName Name of the property to set.
+ * @param Value Value to assign to the property.
+ */
+
+/**
+ * Invoke a function defined on the ViewModel's Lua table and return its result.
+ * @param Name Name of the Lua function to call.
+ * @param Args Arguments to pass to the Lua function.
+ * @returns The function's return value as an FLuaValue, or an empty/default FLuaValue if the call failed or no return value.
+ */
+
+/**
+ * Get a field value directly from the ViewModel's Lua table.
+ * @param Name Name of the field to read.
+ * @returns The field's value as an FLuaValue, or an empty/default FLuaValue if the field does not exist.
+ */
+
+/**
+ * Set a field on the ViewModel's Lua table.
+ * @param Name Name of the field to set.
+ * @param Value Value to assign to the field.
+ */
+
+/**
+ * Return the ULuaState instance associated with this ViewModel, if available.
+ * @returns Pointer to the active ULuaState, or nullptr if no state is available.
+ */
+
+/**
+ * Notify Lua that a named field's value has changed on the ViewModel.
+ * @param FieldName The name of the field that changed.
+ */
+
+/**
+ * Retrieve the internal FLuaValue representing this ViewModel's Lua table.
+ * @returns The ViewModel's Lua table as an FLuaValue.
+ */
+
+/**
+ * Attempt to call a named Lua function if it exists on the ViewModel's table and capture its result.
+ * @param FunctionName Name of the Lua function to invoke.
+ * @param Args Arguments to pass to the function.
+ * @param OutResult Out parameter set to the function's return value when invocation succeeds.
+ * @returns `true` if the function existed and was called successfully, `false` otherwise.
+ */
+LUAMACHINE_API ULuaViewModelBridge : public UMVVMViewModelBase
 {
 	GENERATED_BODY()
 

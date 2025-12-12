@@ -1,7 +1,8 @@
 -- Example ViewModel Script
 -- This script demonstrates how to use Lua with UMG ViewModels
 
--- Initialize the ViewModel data
+-- Populate the provided ViewModel table with default player identity, stats, resources, and currency fields.
+-- @param viewModel The ViewModel table to initialize. The function sets: `playerName`, `playerLevel`, `playerExperience`, `experienceToNextLevel`, `playerHealth`, `playerMaxHealth`, `playerMana`, `playerMaxMana`, `gold`, and `gems`.
 function InitializeViewModel(viewModel)
     print("Initializing ViewModel...")
     
@@ -24,7 +25,18 @@ function InitializeViewModel(viewModel)
     print("ViewModel initialized!")
 end
 
--- Called when a property is requested (optional)
+-- Provide computed or formatted values for select derived ViewModel properties.
+-- Recognized property names and returned values:
+--   - "healthPercent": number (playerHealth / playerMaxHealth)
+--   - "manaPercent": number (playerMana / playerMaxMana)
+--   - "experiencePercent": number (playerExperience / experienceToNextLevel)
+--   - "levelDisplay": string ("Level X")
+--   - "healthDisplay": string ("current / max")
+--   - "manaDisplay": string ("current / max")
+-- Returns nil to indicate default table-based property lookup when the name is not recognized.
+-- @param viewModel The ViewModel table containing player state fields.
+-- @param propertyName The name of the requested property.
+-- @return number|string|nil The computed value for known properties, or `nil` to fall back to default behavior.
 function OnGetProperty(viewModel, propertyName)
     -- Computed properties
     if propertyName == "healthPercent" then
@@ -45,7 +57,12 @@ function OnGetProperty(viewModel, propertyName)
     return nil
 end
 
--- Called when a property is set (optional)
+-- Handles assignments to reactive ViewModel properties, validating and applying special-case updates.
+-- @param viewModel The ViewModel table whose property is being set.
+-- @param propertyName The name of the property being assigned (e.g., "playerHealth", "playerMana", "playerExperience").
+-- @param value The new value for the property.
+-- @return `true` if the assignment was handled (value applied and UI should be notified), `false` if the change is rejected, or `nil` to indicate default table assignment should be used.
+-- Notes: Setting `playerHealth` may trigger player death handling; setting `playerExperience` may trigger one or more level-ups.
 function OnSetProperty(viewModel, propertyName, value)
     -- This function can return:
     -- true: Property was handled by this function (UI will be notified)
@@ -87,7 +104,9 @@ function OnSetProperty(viewModel, propertyName, value)
     return nil -- Use default behavior (set in table)
 end
 
--- Business logic functions
+-- Reduces the player's health by the specified damage amount.
+-- @param amount The amount of damage to apply.
+-- @return The player's updated health after applying damage, floored at 0.
 
 function TakeDamage(viewModel, amount)
     local newHealth = viewModel.playerHealth - amount
@@ -98,6 +117,10 @@ function TakeDamage(viewModel, amount)
     return viewModel.playerHealth
 end
 
+-- Restores the player's health by the given amount, capped at the player's maximum health.
+-- @param viewModel The view model containing player state.
+-- @param amount The amount of health to restore.
+-- @return The player's updated health after healing.
 function Heal(viewModel, amount)
     local newHealth = viewModel.playerHealth + amount
     viewModel.playerHealth = math.min(viewModel.playerMaxHealth, newHealth)
@@ -107,6 +130,11 @@ function Heal(viewModel, amount)
     return viewModel.playerHealth
 end
 
+-- Attempts to consume a specified amount of mana from the view model.
+-- If the view model has enough mana, reduces viewModel.playerMana by `amount`.
+-- @param viewModel The ViewModel table containing player state.
+-- @param amount The amount of mana to consume.
+-- @return `true` if the mana was sufficient and deducted, `false` otherwise.
 function UseMana(viewModel, amount)
     if viewModel.playerMana >= amount then
         viewModel.playerMana = viewModel.playerMana - amount
@@ -118,6 +146,9 @@ function UseMana(viewModel, amount)
     end
 end
 
+-- Restores the player's mana by the specified amount, clamped to the player's maximum mana.
+-- @param amount The amount of mana to add to the current mana (will be capped at max mana).
+-- @return The player's mana after restoration.
 function RestoreMana(viewModel, amount)
     local newMana = viewModel.playerMana + amount
     viewModel.playerMana = math.min(viewModel.playerMaxMana, newMana)
@@ -127,12 +158,19 @@ function RestoreMana(viewModel, amount)
     return viewModel.playerMana
 end
 
+-- Increases the player's gold by the specified amount.
+-- @param amount The amount of gold to add.
+-- @return The updated total gold.
 function AddGold(viewModel, amount)
     viewModel.gold = viewModel.gold + amount
     print("Added " .. amount .. " gold. Total: " .. viewModel.gold)
     return viewModel.gold
 end
 
+-- Attempts to deduct a specified amount of gold from the view model's balance.
+-- If sufficient gold exists, reduces viewModel.gold by the amount and logs the transaction.
+-- @param amount The amount of gold to spend.
+-- @return `true` if the amount was deducted, `false` otherwise.
 function SpendGold(viewModel, amount)
     if viewModel.gold >= amount then
         viewModel.gold = viewModel.gold - amount
@@ -144,6 +182,9 @@ function SpendGold(viewModel, amount)
     end
 end
 
+-- Adds the specified amount of experience to the player's current experience total.
+-- @param amount The experience points to add.
+-- @return The player's updated experience total.
 function AddExperience(viewModel, amount)
     viewModel.playerExperience = viewModel.playerExperience + amount
     print("Gained " .. amount .. " experience. Total: " .. viewModel.playerExperience)
@@ -153,6 +194,12 @@ function AddExperience(viewModel, amount)
     return viewModel.playerExperience
 end
 
+-- Apply a level increase to the player and update related stats on the view model.
+-- This mutates the viewModel: increments `playerLevel`, subtracts the current `experienceToNextLevel`
+-- from `playerExperience`, increases `playerMaxHealth` and `playerMaxMana`, restores `playerHealth`
+-- and `playerMana` to their new maxima, and increases `experienceToNextLevel` (multiplied by 1.5 and floored).
+-- @param viewModel The view model table representing the player; its level, experience, health, mana, and thresholds are updated.
+-- @return The player's new level (number).
 function LevelUp(viewModel)
     viewModel.playerLevel = viewModel.playerLevel + 1
     viewModel.playerExperience = viewModel.playerExperience - viewModel.experienceToNextLevel
@@ -176,6 +223,10 @@ function LevelUp(viewModel)
     return viewModel.playerLevel
 end
 
+-- Reset the player's state to initial respawn values after death.
+-- Sets playerLevel to 1, playerExperience to 0, and experienceToNextLevel to 100.
+-- Restores max stats to playerMaxHealth = 100 and playerMaxMana = 50, and fills current health/mana to those maxima.
+-- Reduces gold to half its current value, rounded down.
 function OnPlayerDeath(viewModel)
     print("Player has died! Resetting...")
     
@@ -196,7 +247,18 @@ function OnPlayerDeath(viewModel)
     print("Player respawned at level 1")
 end
 
--- Utility function to get complete player stats
+-- Provides a table snapshot of the player's current stats.
+-- @return A table with the following keys:
+--   name (string) - playerName,
+--   level (number) - playerLevel,
+--   health (number) - playerHealth,
+--   maxHealth (number) - playerMaxHealth,
+--   mana (number) - playerMana,
+--   maxMana (number) - playerMaxMana,
+--   experience (number) - playerExperience,
+--   experienceToNext (number) - experienceToNextLevel,
+--   gold (number) - gold,
+--   gems (number) - gems.
 function GetPlayerStats(viewModel)
     return {
         name = viewModel.playerName,
