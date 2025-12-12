@@ -99,7 +99,7 @@ public:
 	FName OnSetPropertyLuaFunction;
 
 	// Enable logging of Lua errors
-	UPROPERTY(EditAnywhere, Category = "Lua")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lua")
 	bool bLogError;
 
 	// Initialize the Lua table for this ViewModel

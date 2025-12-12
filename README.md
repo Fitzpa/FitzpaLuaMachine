@@ -16,7 +16,7 @@ Experimental LuaU (https://luau.org/) support is available (for Windows) in the 
 Contrary to the other Unreal Engine Lua plugins, this one does not try to automatically expose the Unreal Engine api, but completely hides it giving to the user/scripter only the features the developer decided to include (via Blueprints or C++).
 An advanced api for using/abusing Unreal Engine Reflection is included too.
 
-Currently Windows 64bit, Mac, Linux x86_64 (both Runtime and Editor), Linux AArch64, Android (32 and 64 bit) and iOS are supported. Minimal supported Engine version is 4.20.
+Currently Windows 64bit, Mac, Linux x86_64 (both Runtime and Editor), Linux AArch64, Android (32 and 64 bit) and iOS are supported. Minimal supported Engine version is 5.1.
 
 ## Discord Channel
 
@@ -127,6 +127,34 @@ and the Level Blueprint:
 Please check the print() function: it is automatically mapped to the Unreal Output Log by the plugin.
 
 Now you should have an idea of the plugin potential, continue reading for more infos.
+
+## Common UI and ViewModel Integration
+
+LuaMachine now supports seamless integration with Unreal Engine's UMG Common UI and MVVM (Model-View-ViewModel) features, allowing Lua scripts to control and interact with UI components effectively.
+
+**Quick Start:** [Get started in 5 minutes](Docs/CommonUI_ViewModel_QuickStart.md)
+
+### LuaCommonUIWidget
+
+Create Common UI widgets that can be controlled entirely through Lua scripts:
+
+* Bind Lua functions to widget lifecycle events (activation, deactivation, construction, destruction)
+* Call Lua functions to update widget state and handle user interactions
+* Access and modify widget properties from Lua
+* Full support for Common UI's activation system
+
+Check the tutorial here: [Common UI with Lua](Tutorials/CommonUIWithLua.md)
+
+### LuaViewModelBridge
+
+Implement the MVVM pattern with Lua as your data layer:
+
+* Two-way data binding between Lua tables and UMG widgets
+* Automatic UI updates when Lua data changes
+* Property validation and computed properties in Lua
+* Clean separation of UI logic from presentation
+
+Check the tutorial here: [ViewModel Integration with Lua](Tutorials/LuaViewModelIntegration.md)
 
 ## LuaState
 
@@ -295,34 +323,6 @@ This is a UMG widget for showing/editing lua code with syntax colouring:
 
 The syntax highlighter is available in the FLuaMachineSyntaxHighlighterTextLayoutMarshaller class (so you can reuse it
 for building more advanced Slate/UMG widgets)
-
-## Common UI and ViewModel Integration
-
-LuaMachine now supports seamless integration with Unreal Engine's UMG Common UI and MVVM (Model-View-ViewModel) features, allowing Lua scripts to control and interact with UI components effectively.
-
-**Quick Start:** [Get started in 5 minutes](Docs/CommonUI_ViewModel_QuickStart.md)
-
-### LuaCommonUIWidget
-
-Create Common UI widgets that can be controlled entirely through Lua scripts:
-
-* Bind Lua functions to widget lifecycle events (activation, deactivation, construction, destruction)
-* Call Lua functions to update widget state and handle user interactions
-* Access and modify widget properties from Lua
-* Full support for Common UI's activation system
-
-Check the tutorial here: [Common UI with Lua](Tutorials/CommonUIWithLua.md)
-
-### LuaViewModelBridge
-
-Implement the MVVM pattern with Lua as your data layer:
-
-* Two-way data binding between Lua tables and UMG widgets
-* Automatic UI updates when Lua data changes
-* Property validation and computed properties in Lua
-* Clean separation of UI logic from presentation
-
-Check the tutorial here: [ViewModel Integration with Lua](Tutorials/LuaViewModelIntegration.md)
 
 ## Lua Threads/Coroutines
 

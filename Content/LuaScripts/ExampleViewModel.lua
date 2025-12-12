@@ -40,11 +40,23 @@ end
 function OnGetProperty(viewModel, propertyName)
     -- Computed properties
     if propertyName == "healthPercent" then
-        return viewModel.playerHealth / viewModel.playerMaxHealth
+        local max = viewModel.playerMaxHealth
+        if max ~= nil and max > 0 then
+            return (viewModel.playerHealth or 0) / max
+        end
+        return 0
     elseif propertyName == "manaPercent" then
-        return viewModel.playerMana / viewModel.playerMaxMana
+        local max = viewModel.playerMaxMana
+        if max ~= nil and max > 0 then
+            return (viewModel.playerMana or 0) / max
+        end
+        return 0
     elseif propertyName == "experiencePercent" then
-        return viewModel.playerExperience / viewModel.experienceToNextLevel
+        local max = viewModel.experienceToNextLevel
+        if max ~= nil and max > 0 then
+            return (viewModel.playerExperience or 0) / max
+        end
+        return 0
     elseif propertyName == "levelDisplay" then
         return "Level " .. viewModel.playerLevel
     elseif propertyName == "healthDisplay" then
