@@ -22,7 +22,44 @@ DECLARE_DYNAMIC_DELEGATE_TwoParams(FLuaHttpResponseReceived, FLuaValue, Context,
 DECLARE_DYNAMIC_DELEGATE_OneParam(FLuaHttpError, FLuaValue, Context);
 
 UENUM(BlueprintType)
-enum class ELuaReflectionType : uint8
+enum /**
+ * Create a Lua table that represents the provided ViewModel bridge.
+ * @param ViewModelBridge Pointer to the ViewModel bridge to expose to Lua.
+ * @return A FLuaValue containing the created Lua table that proxies the ViewModel.
+ */
+/**
+ * Set a property on the provided ViewModel bridge from a Lua value.
+ * @param ViewModelBridge Pointer to the ViewModel bridge whose property will be set.
+ * @param PropertyName Name of the property to set on the ViewModel.
+ * @param Value Lua value to assign to the specified property.
+ */
+/**
+ * Retrieve a ViewModel property as a Lua value.
+ * @param ViewModelBridge Pointer to the ViewModel bridge to query.
+ * @param PropertyName Name of the property to retrieve.
+ * @return A FLuaValue representing the property's current value.
+ */
+/**
+ * Notify the ViewModel that a named property has changed, causing bound UI to update.
+ * @param ViewModelBridge Pointer to the ViewModel bridge to notify.
+ * @param PropertyName Name of the property that changed.
+ */
+/**
+ * Create an instance of a Common UI widget configured to use a Lua state.
+ * @param WorldContextObject World context object used to find or create the widget.
+ * @param WidgetClass Class of the ULuaCommonUIWidget to create.
+ * @param LuaState Lua state class that the widget should use.
+ * @return A pointer to the created ULuaCommonUIWidget, or nullptr on failure.
+ */
+/**
+ * Activate the given Common UI widget so it becomes visible and interactive.
+ * @param Widget Widget instance to activate.
+ */
+/**
+ * Deactivate the given Common UI widget so it is hidden or no longer interactive.
+ * @param Widget Widget instance to deactivate.
+ */
+class ELuaReflectionType : uint8
 {
 	Unknown,
 	Property,

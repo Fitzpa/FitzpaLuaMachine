@@ -16,7 +16,66 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLuaCommonUIWidgetDeactivated);
  * Allows Lua scripts to control and respond to Common UI widget lifecycle events
  */
 UCLASS(Blueprintable, ClassGroup=(UI))
-class LUAMACHINE_API ULuaCommonUIWidget : public UCommonUserWidget
+class /**
+ * Construct the widget with the given object initializer.
+ * @param ObjectInitializer Initialization parameters provided by the engine.
+ */
+ 
+/**
+ * Invoke a function stored in this widget's Lua table with the provided arguments.
+ * @param Name The name of the Lua function to call.
+ * @param Args Positional arguments to pass to the Lua function.
+ * @returns The value returned by the Lua function.
+ */
+
+/**
+ * Retrieve a field value from this widget's Lua table.
+ * @param Name The field name to read from the Lua table.
+ * @returns The value of the requested field; returns an empty/invalid FLuaValue if the field does not exist.
+ */
+
+/**
+ * Set or create a field in this widget's Lua table.
+ * @param Name The field name to set in the Lua table.
+ * @param Value The value to store at the specified field.
+ */
+
+/**
+ * Obtain the ULuaState instance associated with this widget.
+ * @returns Pointer to the widget's ULuaState, or nullptr if no state is available.
+ */
+
+/**
+ * Access the widget's Lua table representation.
+ * @returns The FLuaValue that represents this widget's Lua table.
+ */
+
+/**
+ * Called when the widget is constructed; performs widget initialization and Lua table setup.
+ */
+
+/**
+ * Called when the widget is destructed; performs cleanup related to the widget and its Lua integration.
+ */
+
+/**
+ * Called when the widget is activated; triggers activation-related Lua behaviour and events.
+ */
+
+/**
+ * Called when the widget is deactivated; triggers deactivation-related Lua behaviour and events.
+ */
+
+/**
+ * Create and populate the Lua table that represents this widget, linking C++ state and exposed fields/methods.
+ */
+
+/**
+ * If a Lua function with the given name exists on the widget's Lua table, call it.
+ * @param FunctionName The name of the Lua function to call.
+ * @returns `true` if the function existed and was invoked, `false` otherwise.
+ */
+LUAMACHINE_API ULuaCommonUIWidget : public UCommonUserWidget
 {
 	GENERATED_BODY()
 
