@@ -4,6 +4,10 @@ using UnrealBuildTool;
 
 public class LuaMachine : ModuleRules
 {
+    /// <summary>
+    /// Configures build settings for the LuaMachine module, declaring include paths, public and private dependencies, editor-only dependencies, and selecting the platform-specific third-party Lua libraries to link.
+    /// </summary>
+    /// <param name="Target">The build target rules used to configure module settings for the current target platform and build configuration.</param>
     public LuaMachine(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
@@ -44,6 +48,8 @@ public class LuaMachine : ModuleRules
                 "SlateCore",
                 "UMG",
                 "InputCore",
+                "CommonUI",
+                "ModelViewViewModel",
 				// ... add private dependencies that you statically link with here ...	
 			}
             );

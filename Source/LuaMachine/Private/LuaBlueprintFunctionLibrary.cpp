@@ -3,6 +3,8 @@
 #include "LuaBlueprintFunctionLibrary.h"
 #include "LuaComponent.h"
 #include "LuaMachine.h"
+#include "LuaViewModelBridge.h"
+#include "LuaCommonUIWidget.h"
 #include "Runtime/Online/HTTP/Public/Interfaces/IHttpResponse.h"
 #include "Runtime/Core/Public/Math/BigInt.h"
 #include "Runtime/Core/Public/Misc/Base64.h"
@@ -2011,6 +2013,13 @@ void ULuaBlueprintFunctionLibrary::UnregisterLuaConsoleCommand(const FString& Co
 	FLuaMachineModule::Get().UnregisterLuaConsoleCommand(CommandName);
 }
 
+/**
+ * @brief Create an instance of a dynamic ULuaState subclass and initialize it for the given world.
+ *
+ * @param WorldContextObject Object used to resolve the UWorld that the new Lua state will be bound to.
+ * @param LuaStateClass The concrete ULuaState subclass to instantiate; must be non-null and not the ULuaState base class.
+ * @return ULuaState* Pointer to the initialized Lua state bound to the world's context, or `nullptr` if the class is invalid or instantiation failed.
+ */
 ULuaState* ULuaBlueprintFunctionLibrary::CreateDynamicLuaState(UObject* WorldContextObject, TSubclassOf<ULuaState> LuaStateClass)
 {
 	if (!LuaStateClass)
@@ -2032,4 +2041,164 @@ ULuaState* ULuaBlueprintFunctionLibrary::CreateDynamicLuaState(UObject* WorldCon
 	}
 
 	return NewLuaState->GetLuaState(WorldContextObject->GetWorld());
+}
+
+/**
+ * @brief Create or obtain the Lua table that represents the given view model.
+ *
+ * Initializes the view-model bridge's Lua view model if necessary and returns its Lua table. If the bridge is null or has no associated Lua state, a nil Lua value is returned.
+ *
+ * @param ViewModelBridge Pointer to the view-model bridge to initialize and query.
+ * @return FLuaValue The Lua table representing the view model, or a nil `FLuaValue` if `ViewModelBridge` is null or has no Lua state.
+ */
+
+FLuaValue ULuaBlueprintFunctionLibrary::LuaCreateViewModelTable(ULuaViewModelBridge* ViewModelBridge)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateViewModelTable: ViewModelBridge is null"));
+		return LuaCreateNil();
+	}
+
+	if (!ViewModelBridge->LuaState)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateViewModelTable: ViewModelBridge has no LuaState set"));
+		return LuaCreateNil();
+	}
+
+	ViewModelBridge->InitializeLuaViewModel();
+	return ViewModelBridge->GetViewModelLuaTable();
+}
+
+/**
+ * @brief Set a property on a view-model bridge from a Lua value.
+ *
+ * Sets the named property on the provided ULuaViewModelBridge to the given FLuaValue.
+ * If ViewModelBridge is null the call is a no-op.
+ *
+ * @param ViewModelBridge The view-model bridge instance whose property will be set.
+ * @param PropertyName The name of the property to set on the view-model.
+ * @param Value The Lua value to assign to the property.
+ */
+void ULuaBlueprintFunctionLibrary::LuaSetViewModelProperty(ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName, FLuaValue Value)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaSetViewModelProperty: ViewModelBridge is null"));
+		return;
+	}
+
+	ViewModelBridge->LuaSetProperty(PropertyName, Value);
+}
+
+/**
+ * @brief Retrieve a ViewModel property as a Lua value.
+ *
+ * @param ViewModelBridge The ViewModel bridge instance to query.
+ * @param PropertyName Name of the property to retrieve.
+ * @return FLuaValue The property's value as an FLuaValue; returns a Lua nil value if ViewModelBridge is null or the property is not present.
+ */
+FLuaValue ULuaBlueprintFunctionLibrary::LuaGetViewModelProperty(ULuaViewModelBridge* ViewModelBridge, const FString& PropertyName)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaGetViewModelProperty: ViewModelBridge is null"));
+		return LuaCreateNil();
+	}
+
+	return ViewModelBridge->LuaGetProperty(PropertyName);
+}
+
+/**
+ * @brief Broadcasts a property-change notification from the given ViewModel bridge to its listeners.
+ *
+ * @param ViewModelBridge The ULuaViewModelBridge instance that owns the property; if null the call is ignored.
+ * @param PropertyName The name of the property that changed.
+ */
+void ULuaBlueprintFunctionLibrary::LuaNotifyViewModelPropertyChanged(ULuaViewModelBridge* ViewModelBridge, const FName& PropertyName)
+{
+	if (!ViewModelBridge)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaNotifyViewModelPropertyChanged: ViewModelBridge is null"));
+		return;
+	}
+
+	ViewModelBridge->LuaBroadcastFieldValueChanged(PropertyName);
+}
+
+/**
+ * @brief Creates a ULuaCommonUIWidget in the world associated with the given context object and optionally binds a Lua state to it.
+ *
+ * Attempts to construct the widget of the provided class using the world obtained from WorldContextObject.
+ *
+ * @param WorldContextObject Object used to obtain the UWorld where the widget will be created; must not be null and must provide a valid world.
+ * @param WidgetClass Class of the widget to create; must not be null.
+ * @param LuaState Optional Lua state class to assign to the created widget; if provided the widget's LuaState member will be set.
+ * @return ULuaCommonUIWidget* Pointer to the created widget, or nullptr if creation failed (invalid parameters or world not found).
+ */
+ULuaCommonUIWidget* ULuaBlueprintFunctionLibrary::LuaCreateCommonUIWidget(UObject* WorldContextObject, TSubclassOf<ULuaCommonUIWidget> WidgetClass, TSubclassOf<ULuaState> LuaState)
+{
+	if (!WidgetClass)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: WidgetClass is null"));
+		return nullptr;
+	}
+
+	if (!WorldContextObject)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: WorldContextObject is null"));
+		return nullptr;
+	}
+
+	UWorld* World = WorldContextObject->GetWorld();
+	if (!World)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaCreateCommonUIWidget: Unable to get World from WorldContextObject"));
+		return nullptr;
+	}
+
+	ULuaCommonUIWidget* Widget = CreateWidget<ULuaCommonUIWidget>(World, WidgetClass);
+	if (Widget && LuaState)
+	{
+		Widget->LuaState = LuaState;
+	}
+
+	return Widget;
+}
+
+/**
+ * @brief Activates the provided ULuaCommonUIWidget instance.
+ *
+ * If the widget is valid, calls its ActivateWidget method to make it active.
+ * If `Widget` is null, the call is ignored and an error is logged.
+ *
+ * @param Widget The widget to activate; may be null (no action taken).
+ */
+void ULuaBlueprintFunctionLibrary::LuaActivateCommonUIWidget(ULuaCommonUIWidget* Widget)
+{
+	if (!Widget)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaActivateCommonUIWidget: Widget is null"));
+		return;
+	}
+
+	Widget->ActivateWidget();
+}
+
+/**
+ * @brief Deactivates the provided common UI widget.
+ *
+ * If `Widget` is null, logs an error and performs no action.
+ *
+ * @param Widget The ULuaCommonUIWidget instance to deactivate.
+ */
+void ULuaBlueprintFunctionLibrary::LuaDeactivateCommonUIWidget(ULuaCommonUIWidget* Widget)
+{
+	if (!Widget)
+	{
+		UE_LOG(LogLuaMachine, Error, TEXT("LuaDeactivateCommonUIWidget: Widget is null"));
+		return;
+	}
+
+	Widget->DeactivateWidget();
 }
